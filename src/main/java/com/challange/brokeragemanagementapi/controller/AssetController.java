@@ -3,13 +3,12 @@ package com.challange.brokeragemanagementapi.controller;
 import com.challange.brokeragemanagementapi.manager.AssetManager;
 import com.challange.brokeragemanagementapi.model.request.DepositRequest;
 import com.challange.brokeragemanagementapi.model.request.WithdrawRequest;
+import com.challange.brokeragemanagementapi.model.response.AssetListResponse;
 import com.challange.brokeragemanagementapi.model.response.AssetResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/assets")
@@ -22,14 +21,13 @@ public class AssetController {
 
     @GetMapping("/customer/{customerId}")
     @PreAuthorize("@securityService.isOwnerOrAdmin(#customerId)")
-    public ResponseEntity<List<AssetResponse>> listAssets(@PathVariable Long customerId) {
-        List<AssetResponse> assets = assetManager.listAssetsByCustomerId(customerId);
-        return ResponseEntity.ok(assets);
+    public ResponseEntity<AssetListResponse> listAssets(@PathVariable Long customerId) {
+        AssetListResponse assetResponse = assetManager.listAssetsByCustomerId(customerId);
+        return ResponseEntity.ok(assetResponse);
     }
 
     @PostMapping("/deposit/{customerId}")
-    //@PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #customerId == authentication.principal.id)")
-    @PreAuthorize("hasRole('ADMIN') or @securityService.isOwner(#customerId)")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #customerId == authentication.principal.id)")
     public ResponseEntity<AssetResponse> depositMoney(
             @PathVariable Long customerId,
             @Valid @RequestBody DepositRequest depositRequest) {

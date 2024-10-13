@@ -1,7 +1,11 @@
 package com.challange.brokeragemanagementapi.service;
 
 import com.challange.brokeragemanagementapi.dto.OrderDto;
+import com.challange.brokeragemanagementapi.exception.CustomerNotFoundException;
+import com.challange.brokeragemanagementapi.exception.InvalidOrderStatusException;
+import com.challange.brokeragemanagementapi.exception.OrderNotFoundException;
 import com.challange.brokeragemanagementapi.mapper.OrderConverter;
+import com.challange.brokeragemanagementapi.model.Customer;
 import com.challange.brokeragemanagementapi.model.Order;
 import com.challange.brokeragemanagementapi.model.enumtype.OrderStatus;
 import com.challange.brokeragemanagementapi.repository.CustomerRepository;
@@ -48,15 +52,11 @@ public class OrderService {
 
     @Transactional
     public Order createOrder(OrderDto orderDto) {
-        //TODO: convert orderDto to Order entity
-        Order order = new Order();
-        order.setCustomer(customerRepository.findById(orderDto.getCustomerId()).get());
-        order.setAssetName(orderDto.getAssetName());
-        order.setOrderSide(orderDto.getOrderSide());
-        order.setSize(orderDto.getSize());
-        order.setPrice(orderDto.getPrice());
-        order.setStatus(OrderStatus.PENDING);
-        order.setCreateDate(LocalDateTime.now());
+
+        Customer customer = customerRepository.findById(orderDto.getCustomerId())
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+
+        Order order = orderConverter.convertToEntity(orderDto, customer);
 
         assetService.validateAndUpdateAssetForOrder(order);
 
@@ -66,10 +66,10 @@ public class OrderService {
     @Transactional
     public void deleteOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalStateException("Only PENDING orders can be deleted");
+            throw new InvalidOrderStatusException("Only PENDING orders can be deleted");
         }
 
         assetService.revertAssetForDeletedOrder(order);

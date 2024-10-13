@@ -1,17 +1,18 @@
 package com.challange.brokeragemanagementapi.manager;
 
 import com.challange.brokeragemanagementapi.dto.AssetDto;
+import com.challange.brokeragemanagementapi.exception.CustomerNotFoundException;
 import com.challange.brokeragemanagementapi.mapper.AssetConverter;
-import com.challange.brokeragemanagementapi.model.Asset;
+import com.challange.brokeragemanagementapi.model.enumtype.ResponseStatusType;
 import com.challange.brokeragemanagementapi.model.request.DepositRequest;
 import com.challange.brokeragemanagementapi.model.request.WithdrawRequest;
+import com.challange.brokeragemanagementapi.model.response.AssetListResponse;
 import com.challange.brokeragemanagementapi.model.response.AssetResponse;
 import com.challange.brokeragemanagementapi.service.AssetService;
 import com.challange.brokeragemanagementapi.service.TransactionService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class AssetManager {
@@ -27,11 +28,24 @@ public class AssetManager {
         this.transactionService = transactionService;
     }
 
-    public List<AssetResponse> listAssetsByCustomerId(Long customerId) {
-        List<AssetDto> assets = assetService.listAssets(customerId);
-        return assets.stream()
-                .map(assetConverter::convertToResponse)
-                .collect(Collectors.toList());
+    public AssetListResponse listAssetsByCustomerId(Long customerId) {
+        try {
+            List<AssetDto> assets = assetService.listAssets(customerId);
+            AssetListResponse assetResponses = new AssetListResponse();
+            assetResponses.setStatus(ResponseStatusType.SUCCESS.getValue());
+            assetResponses.setAssetDtoList(assets);
+            return assetResponses;
+        } catch (CustomerNotFoundException e) {
+            AssetListResponse response = new AssetListResponse();
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setErrorMessage("Failed to list assets: " + e.getMessage());
+            return response;
+        } catch (Exception e) {
+            AssetListResponse response = new AssetListResponse();
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setErrorMessage("An unexpected error occurred while listing assets");
+            return response;
+        }
     }
 
     public AssetResponse depositMoney(Long customerId, DepositRequest depositRequest) {

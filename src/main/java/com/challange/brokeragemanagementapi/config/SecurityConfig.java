@@ -35,8 +35,7 @@ public class SecurityConfig {
                 // H2 konsoluna erişimi izin veriyoruz
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/api/orders/**").authenticated() // USER rolü olan kullanıcılar da erişebilir
-                .requestMatchers("/api/assets/**").authenticated() // USER rolü olan kullanıcılar da erişebilir
-                .and()
+                .requestMatchers("/api/assets/**").authenticated().and()
                 .httpBasic(); // Basit HTTP temel yetkilendirmesi
         return http.build();
     }

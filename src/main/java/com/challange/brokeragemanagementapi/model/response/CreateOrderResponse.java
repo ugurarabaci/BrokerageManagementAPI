@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class CreateOrderResponse {
+public class CreateOrderResponse extends Response{
     private Long id;
     private Long customerId;
     private String assetName;
     private OrderSide orderSide;
     private BigDecimal size;
     private BigDecimal price;
-    private OrderStatus status;
+    private OrderStatus orderStatus;
     private LocalDateTime createDate;
 
 }

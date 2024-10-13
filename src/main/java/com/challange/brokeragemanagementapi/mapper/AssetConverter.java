@@ -5,8 +5,6 @@ import com.challange.brokeragemanagementapi.model.Asset;
 import com.challange.brokeragemanagementapi.model.response.AssetResponse;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-
 @Component
 public class AssetConverter {
     public AssetDto convertToDTO(Asset asset, Long customerId) {
@@ -14,8 +12,8 @@ public class AssetConverter {
         assetDTO.setId(asset.getId());
         assetDTO.setCustomerId(customerId);
         assetDTO.setAssetName(asset.getAssetName());
-        assetDTO.setSize(asset.getSize().doubleValue());
-        assetDTO.setUsableSize(asset.getUsableSize().doubleValue());
+        assetDTO.setSize(asset.getSize());
+        assetDTO.setUsableSize(asset.getUsableSize());
         return assetDTO;
     }
 
@@ -24,8 +22,8 @@ public class AssetConverter {
         asset.setId(assetDTO.getId());
         //asset.setCustomer(assetDTO.getCustomerId());
         asset.setAssetName(assetDTO.getAssetName());
-        asset.setSize(BigDecimal.valueOf(assetDTO.getSize()));
-        asset.setUsableSize(BigDecimal.valueOf(assetDTO.getUsableSize()));
+        asset.setSize((assetDTO.getSize()));
+        asset.setUsableSize((assetDTO.getUsableSize()));
         return asset;
     }
 
@@ -34,8 +32,8 @@ public class AssetConverter {
         assetResponse.setId(assetDTO.getId());
         assetResponse.setCustomerId(assetDTO.getCustomerId());
         assetResponse.setAssetName(assetDTO.getAssetName());
-        assetResponse.setSize(BigDecimal.valueOf(assetDTO.getSize()));
-        assetResponse.setUsableSize(BigDecimal.valueOf(assetDTO.getUsableSize()));
+        assetResponse.setSize((assetDTO.getSize()));
+        assetResponse.setUsableSize((assetDTO.getUsableSize()));
         return assetResponse;
     }
     public AssetDto convertToDTO(AssetResponse assetResponse) {
@@ -43,8 +41,8 @@ public class AssetConverter {
         assetDTO.setId(assetResponse.getId());
         assetDTO.setCustomerId(assetResponse.getCustomerId());
         assetDTO.setAssetName(assetResponse.getAssetName());
-        assetDTO.setSize(assetResponse.getSize().doubleValue());
-        assetDTO.setUsableSize(assetResponse.getUsableSize().doubleValue());
+        assetDTO.setSize(assetResponse.getSize());
+        assetDTO.setUsableSize(assetResponse.getUsableSize());
         return assetDTO;
     }
 }

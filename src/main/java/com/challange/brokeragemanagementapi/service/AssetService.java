@@ -43,7 +43,7 @@ public class AssetService {
 
         BigDecimal requiredAmount = order.getSize().multiply(order.getPrice());
         if (tryAsset.getUsableSize().compareTo(requiredAmount) < 0) {
-            throw new IllegalStateException("Insufficient TRY balance for buy order");
+            throw new InsufficientFundsException("Insufficient TRY balance for buy order");
         }
 
         tryAsset.setUsableSize(tryAsset.getUsableSize().subtract(requiredAmount));
@@ -61,7 +61,7 @@ public class AssetService {
 
     private void revertAssetForDeletedBuyOrder(Order order) {
         Asset tryAsset = assetRepository.findByCustomerIdAndAssetName(order.getCustomer().getId(), "TRY")
-                .orElseThrow(() -> new IllegalStateException("TRY asset not found for customer"));
+                .orElseThrow(() -> new AssetNotFoundException("TRY asset not found for customer"));
 
         BigDecimal amountToRevert = order.getSize().multiply(order.getPrice());
         tryAsset.setUsableSize(tryAsset.getUsableSize().add(amountToRevert));
@@ -82,7 +82,7 @@ public class AssetService {
 
     private void revertAssetForDeletedSellOrder(Order order) {
         Asset asset = assetRepository.findByCustomerIdAndAssetName(order.getCustomer().getId(), order.getAssetName())
-                .orElseThrow(() -> new IllegalStateException("Asset not found for customer"));
+                .orElseThrow(() -> new AssetNotFoundException("Asset not found for customer"));
 
         asset.setUsableSize(asset.getUsableSize().add(order.getSize()));
         assetRepository.save(asset);
@@ -98,8 +98,8 @@ public class AssetService {
                     assetDto.setId(asset.getId());
                     assetDto.setCustomerId(asset.getCustomer().getId());
                     assetDto.setAssetName(asset.getAssetName());
-                    assetDto.setSize(asset.getSize().doubleValue());
-                    assetDto.setUsableSize(asset.getUsableSize().doubleValue());
+                    assetDto.setSize(asset.getSize());
+                    assetDto.setUsableSize(asset.getUsableSize());
                     return assetDto;
                 })
                 .collect(Collectors.toList());

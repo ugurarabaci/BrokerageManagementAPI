@@ -1,16 +1,18 @@
 package com.challange.brokeragemanagementapi.manager;
 
 import com.challange.brokeragemanagementapi.dto.OrderDto;
+import com.challange.brokeragemanagementapi.exception.*;
 import com.challange.brokeragemanagementapi.mapper.OrderConverter;
 import com.challange.brokeragemanagementapi.model.enumtype.OrderStatus;
+import com.challange.brokeragemanagementapi.model.enumtype.ResponseStatusType;
 import com.challange.brokeragemanagementapi.model.request.CreateOrderRequest;
 import com.challange.brokeragemanagementapi.model.response.CreateOrderResponse;
+import com.challange.brokeragemanagementapi.model.response.Response;
 import com.challange.brokeragemanagementapi.security.SecurityService;
 import com.challange.brokeragemanagementapi.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,7 +22,6 @@ public class OrderManager {
 
     private final OrderService orderService;
     private final OrderConverter orderConverter;
-
     private final SecurityService securityService;
 
     public OrderManager(OrderService orderService, OrderConverter orderConverter, SecurityService securityService) {
@@ -30,18 +31,46 @@ public class OrderManager {
     }
 
     public CreateOrderResponse createOrder(CreateOrderRequest request) {
+        try {
+            log.info("Creating order for customer: {}, asset: {}, side: {}, size: {}, price: {}",
+                    request.getCustomerId(), request.getAssetName(), request.getOrderSide(),
+                    request.getSize(), request.getPrice());
 
-        log.info("Creating order for customer: {}, asset: {}, side: {}, size: {}, price: {}",
-                request.getCustomerId(), request.getAssetName(), request.getOrderSide(),
-                request.getSize(), request.getPrice());
+            OrderDto orderDto = orderConverter.convertCreateRequestToDTO(request);
+            OrderDto createdOrderDTO = orderConverter.convertToDTO(orderService.createOrder(orderDto));
 
-        OrderDto orderDto = orderConverter.convertCreateRequestToDTO(request);
+            log.info("Order created successfully. Order ID: {}", createdOrderDTO.getId());
 
-        OrderDto createdOrderDTO = orderConverter.convertToDTO(orderService.createOrder(orderDto));
+            CreateOrderResponse response = orderConverter.convertToCreateOrderResponse(createdOrderDTO);
+            response.setStatus(ResponseStatusType.SUCCESS.getValue());
 
-        log.info("Order created successfully. Order ID: {}", createdOrderDTO.getId());
+            return response;
 
-        return orderConverter.convertToCreateOrderResponse(createdOrderDTO);
+        } catch (CustomerNotFoundException e) {
+            log.error("Customer not found while creating order: {}", e.getMessage());
+            CreateOrderResponse response = new CreateOrderResponse();
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setErrorMessage("Customer not found: " + e.getMessage());
+            return response;
+        } catch (AssetNotFoundException e) {
+            log.error("Asset not found while creating order: {}", e.getMessage());
+            CreateOrderResponse response = new CreateOrderResponse();
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setErrorMessage("Asset not found: " + e.getMessage());
+            return response;
+        } catch (InsufficientFundsException e) {
+            log.error("Insufficient funds while creating order: {}", e.getMessage());
+            CreateOrderResponse response = new CreateOrderResponse();
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setErrorMessage("Insufficient funds: " + e.getMessage());
+            return response;
+        } catch (Exception e) {
+            log.error("Unexpected error while creating order: {}", e.getMessage());
+            CreateOrderResponse response = new CreateOrderResponse();
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setErrorMessage("An unexpected error occurred while creating order");
+            return response;
+        }
     }
 
     public List<OrderDto> listOrders(Long customerId, LocalDate startDate, LocalDate endDate, String assetName, OrderStatus status) {
@@ -55,18 +84,36 @@ public class OrderManager {
         return orderDtos;
     }
 
-    public void deleteOrder(Long orderId) {
-        log.info("Deleting order with ID: {}", orderId);
-        if (!securityService.isOwnerOfOrder(orderId)) {
-            log.warn("User attempted to delete order {} without ownership", orderId);
-            try {
-                throw new AccessDeniedException("You are not the owner of this order");
-            } catch (AccessDeniedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        orderService.deleteOrder(orderId);
+    public Response deleteOrder(Long orderId) {
+        log.info("Attempting to delete order with ID: {}", orderId);
+        Response response = new Response();
 
-        log.info("Order deleted successfully. Order ID: {}", orderId);
+        try {
+            if (!securityService.isOwnerOfOrder(orderId) && !securityService.isAdmin()) {
+                log.warn("User attempted to delete order {} without proper authorization", orderId);
+                response.setStatus(ResponseStatusType.FAILURE.getValue());
+                response.setErrorMessage("You are not authorized to delete this order");
+                return response;
+            }
+
+            orderService.deleteOrder(orderId);
+
+            log.info("Order deleted successfully. Order ID: {}", orderId);
+            response.setStatus(ResponseStatusType.SUCCESS.getValue());
+        } catch (OrderNotFoundException e) {
+            log.error("Order not found for deletion. Order ID: {}", orderId);
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setErrorMessage(e.getMessage());
+        } catch (InvalidOrderStatusException e) {
+            log.error("Only PENDING orders can be deleted. Order ID: {}", orderId);
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setErrorMessage(e.getMessage());
+        } catch (Exception e) {
+            log.error("Failed to delete order with ID: {}. Error: {}", orderId, e.getMessage());
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setErrorMessage("An unexpected error occurred while deleting the order");
+        }
+
+        return response;
     }
 }

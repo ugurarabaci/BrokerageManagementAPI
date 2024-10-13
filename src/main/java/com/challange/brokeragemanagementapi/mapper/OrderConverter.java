@@ -1,6 +1,7 @@
 package com.challange.brokeragemanagementapi.mapper;
 
 import com.challange.brokeragemanagementapi.dto.OrderDto;
+import com.challange.brokeragemanagementapi.model.Customer;
 import com.challange.brokeragemanagementapi.model.Order;
 import com.challange.brokeragemanagementapi.model.enumtype.OrderStatus;
 import com.challange.brokeragemanagementapi.model.request.CreateOrderRequest;
@@ -31,7 +32,7 @@ public class OrderConverter {
         return dto;
     }
 
-    public Order convertToEntity(OrderDto dto) {
+    public Order convertToEntity(OrderDto dto, Customer customer) {
         if (dto == null) {
             return null;
         }
@@ -92,7 +93,7 @@ public class OrderConverter {
         response.setOrderSide(dto.getOrderSide());
         response.setSize(dto.getSize());
         response.setPrice(dto.getPrice());
-        response.setStatus(dto.getStatus());
+        response.setOrderStatus(dto.getStatus());
         response.setCreateDate(dto.getCreateDate());
 
         return response;

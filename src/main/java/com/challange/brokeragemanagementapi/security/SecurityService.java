@@ -21,6 +21,11 @@ public class SecurityService {
         this.orderRepository = orderRepository;
     }
 
+    public boolean isAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName().equals("admin");
+    }
+
     public boolean isOwner(Long customerId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();

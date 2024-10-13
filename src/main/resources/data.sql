@@ -34,3 +34,8 @@ INSERT INTO orders (customer_id, asset_name, order_side, size, price, status, cr
 SELECT id, 'GOOGL', 'SELL', 5.00, 2500.00, 'PENDING', CURRENT_TIMESTAMP
 FROM customers
 WHERE username = 'janesmith';
+
+INSERT INTO orders (customer_id, asset_name, order_side, size, price, status, create_date)
+SELECT id, 'GOOGL', 'SELL', 5.00, 2500.00, 'MATCHED', CURRENT_TIMESTAMP
+FROM customers
+WHERE username = 'janesmith';
