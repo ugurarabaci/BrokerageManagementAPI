@@ -1,5 +1,6 @@
 package com.challange.brokeragemanagementapi.config;
 
+import com.challange.brokeragemanagementapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,16 +23,27 @@ public class SecurityConfig {
 
     @Value("${spring.security.user.password}")
     private String adminPassword;
+    private UserRepository userRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .authorizeRequests()
-                .anyRequest().hasRole("ADMIN")
+                .csrf().disable() // CSRF korumasını devre dışı bırak
+                .headers().frameOptions().disable() // H2 konsolunun iframe'de çalışabilmesi için frameOptions'u devre dışı bırak
                 .and()
-                .httpBasic();
+                .authorizeHttpRequests() // authorizeRequests yerine authorizeHttpRequests kullanıyoruz
+                // H2 konsoluna erişimi izin veriyoruz
+                .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/api/orders/**").authenticated() // USER rolü olan kullanıcılar da erişebilir
+                .requestMatchers("/api/assets/**").authenticated() // USER rolü olan kullanıcılar da erişebilir
+                .and()
+                .httpBasic(); // Basit HTTP temel yetkilendirmesi
         return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -41,11 +53,21 @@ public class SecurityConfig {
                 .password(passwordEncoder().encode(adminPassword))
                 .roles("ADMIN")
                 .build();
-        return new InMemoryUserDetailsManager(admin);
+
+        UserDetails user1 = User.builder()
+                .username("johndoe")
+                .password(passwordEncoder().encode("password123"))
+                .roles("USER")
+                .build();
+
+        UserDetails user2 = User.builder()
+                .username("janesmith")
+                .password(passwordEncoder().encode("password456"))
+                .roles("USER")
+                .build();
+
+        return new InMemoryUserDetailsManager(admin, user1, user2);
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 }

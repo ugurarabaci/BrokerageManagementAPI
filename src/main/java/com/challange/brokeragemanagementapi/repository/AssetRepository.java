@@ -13,6 +13,5 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
 
     List<Asset> findByCustomerId(Long customerId);
 
-    Optional<Asset> findByCustomerIdAndAssetNameAndAssetType(Long customerId, String assetName, String assetType);
     Optional<Asset> findByAssetName(String assetName);
 }

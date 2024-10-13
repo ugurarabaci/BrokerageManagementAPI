@@ -1,21 +1,28 @@
 package com.challange.brokeragemanagementapi.service;
 
+import com.challange.brokeragemanagementapi.dto.AssetDto;
+import com.challange.brokeragemanagementapi.exception.CustomerNotFoundException;
 import com.challange.brokeragemanagementapi.model.Asset;
 import com.challange.brokeragemanagementapi.model.Order;
 import com.challange.brokeragemanagementapi.model.enumtype.OrderSide;
 import com.challange.brokeragemanagementapi.repository.AssetRepository;
+import com.challange.brokeragemanagementapi.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AssetService {
 
     private final AssetRepository assetRepository;
+    private final CustomerRepository customerRepository;
 
-    public AssetService(AssetRepository assetRepository) {
+    public AssetService(AssetRepository assetRepository, CustomerRepository customerRepository) {
         this.assetRepository = assetRepository;
+        this.customerRepository = customerRepository;
     }
 
     @Transactional
@@ -77,4 +84,23 @@ public class AssetService {
         asset.setUsableSize(asset.getUsableSize().add(order.getSize()));
         assetRepository.save(asset);
     }
+
+    public List<AssetDto> listAssets(Long customerId) {
+        if (!customerRepository.existsById(customerId)) {
+            throw new CustomerNotFoundException("Customer not found with id: " + customerId);
+        }
+        return assetRepository.findByCustomerId(customerId).stream()
+                .map(asset -> {
+                    AssetDto assetDto = new AssetDto();
+                    assetDto.setId(asset.getId());
+                    assetDto.setCustomerId(asset.getCustomer().getId());
+                    assetDto.setAssetName(asset.getAssetName());
+                    assetDto.setSize(asset.getSize().doubleValue());
+                    assetDto.setUsableSize(asset.getUsableSize().doubleValue());
+                    return assetDto;
+                })
+                .collect(Collectors.toList());
+    }
+
+
 }

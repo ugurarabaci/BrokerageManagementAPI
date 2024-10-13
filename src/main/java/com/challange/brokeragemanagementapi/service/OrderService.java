@@ -1,52 +1,60 @@
 package com.challange.brokeragemanagementapi.service;
 
+import com.challange.brokeragemanagementapi.dto.OrderDto;
+import com.challange.brokeragemanagementapi.mapper.OrderConverter;
 import com.challange.brokeragemanagementapi.model.Order;
 import com.challange.brokeragemanagementapi.model.enumtype.OrderStatus;
-import com.challange.brokeragemanagementapi.model.request.CreateOrderRequest;
-import com.challange.brokeragemanagementapi.model.request.ListOrdersRequest;
 import com.challange.brokeragemanagementapi.repository.CustomerRepository;
 import com.challange.brokeragemanagementapi.repository.OrderRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
     private final AssetService assetService;
     private final CustomerRepository customerRepository;
+    private final OrderConverter orderConverter;
 
     public OrderService(OrderRepository orderRepository, AssetService assetService,
-                        CustomerRepository customerRepository) {
+                        CustomerRepository customerRepository, OrderConverter orderConverter) {
         this.orderRepository = orderRepository;
         this.assetService = assetService;
         this.customerRepository = customerRepository;
+        this.orderConverter = orderConverter;
     }
 
-    public List<Order> listOrders(ListOrdersRequest request) {
-        LocalDateTime startDateTime = request.getStartDate().atStartOfDay();
-        LocalDateTime endDateTime = request.getEndDate().atTime(23, 59, 59);
+    public List<OrderDto> listOrders(OrderDto orderDto) {
+        LocalDateTime startDateTime = orderDto.getStartDate();
+        LocalDateTime endDateTime = orderDto.getEndDate();
 
         return orderRepository.findOrdersByFilters(
-                request.getCustomerId(),
-                startDateTime,
-                endDateTime,
-                request.getAssetName(),
-                request.getStatus()
-        );
+                        orderDto.getCustomerId(),
+                        startDateTime,
+                        endDateTime,
+                        orderDto.getAssetName(),
+                        orderDto.getStatus()
+                ).stream()
+                .map(orderConverter::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public Order createOrder(CreateOrderRequest request) {
+    public Order createOrder(OrderDto orderDto) {
+        //TODO: convert orderDto to Order entity
         Order order = new Order();
-        order.setCustomer(customerRepository.findById(request.getCustomerId()).get());
-        order.setAssetName(request.getAssetName());
-        order.setOrderSide(request.getOrderSide());
-        order.setSize(request.getSize());
-        order.setPrice(request.getPrice());
+        order.setCustomer(customerRepository.findById(orderDto.getCustomerId()).get());
+        order.setAssetName(orderDto.getAssetName());
+        order.setOrderSide(orderDto.getOrderSide());
+        order.setSize(orderDto.getSize());
+        order.setPrice(orderDto.getPrice());
         order.setStatus(OrderStatus.PENDING);
         order.setCreateDate(LocalDateTime.now());
 
@@ -54,6 +62,7 @@ public class OrderService {
 
         return orderRepository.save(order);
     }
+
     @Transactional
     public void deleteOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
