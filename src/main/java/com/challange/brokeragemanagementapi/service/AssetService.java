@@ -1,8 +1,11 @@
 package com.challange.brokeragemanagementapi.service;
 
 import com.challange.brokeragemanagementapi.dto.AssetDto;
+import com.challange.brokeragemanagementapi.exception.AssetNotFoundException;
 import com.challange.brokeragemanagementapi.exception.CustomerNotFoundException;
+import com.challange.brokeragemanagementapi.exception.InsufficientFundsException;
 import com.challange.brokeragemanagementapi.model.Asset;
+import com.challange.brokeragemanagementapi.model.Customer;
 import com.challange.brokeragemanagementapi.model.Order;
 import com.challange.brokeragemanagementapi.model.enumtype.OrderSide;
 import com.challange.brokeragemanagementapi.repository.AssetRepository;
@@ -102,5 +105,43 @@ public class AssetService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public Asset depositMoney(Long customerId, BigDecimal amount) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with id: " + customerId));
+
+        Asset tryAsset = assetRepository.findByCustomerIdAndAssetName(customer.getId(), "TRY")
+                .orElseGet(() -> {
+                    Asset newAsset = new Asset();
+                    newAsset.setCustomer(customer);
+                    newAsset.setAssetName("TRY");
+                    newAsset.setSize(BigDecimal.ZERO);
+                    newAsset.setUsableSize(BigDecimal.ZERO);
+                    return newAsset;
+                });
+
+        tryAsset.setSize(tryAsset.getSize().add(amount));
+        tryAsset.setUsableSize(tryAsset.getUsableSize().add(amount));
+
+        return assetRepository.save(tryAsset);
+    }
+
+    @Transactional
+    public Asset withdrawMoney(Long customerId, BigDecimal amount, String iban) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with id: " + customerId));
+
+        Asset tryAsset = assetRepository.findByCustomerIdAndAssetName(customer.getId(), "TRY")
+                .orElseThrow(() -> new AssetNotFoundException("TRY asset not found for customer: " + customerId));
+
+        if (tryAsset.getUsableSize().compareTo(amount) < 0) {
+            throw new InsufficientFundsException("Insufficient funds for withdrawal");
+        }
+
+        tryAsset.setSize(tryAsset.getSize().subtract(amount));
+        tryAsset.setUsableSize(tryAsset.getUsableSize().subtract(amount));
+
+        return assetRepository.save(tryAsset);
+    }
 
 }

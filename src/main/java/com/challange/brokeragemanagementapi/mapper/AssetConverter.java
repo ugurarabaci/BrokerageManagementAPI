@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 
 @Component
 public class AssetConverter {
-    public static AssetDto convertToDTO(Asset asset) {
+    public AssetDto convertToDTO(Asset asset, Long customerId) {
         AssetDto assetDTO = new AssetDto();
         assetDTO.setId(asset.getId());
-        //assetDTO.setCustomerId(asset.getCustomerId());
+        assetDTO.setCustomerId(customerId);
         assetDTO.setAssetName(asset.getAssetName());
         assetDTO.setSize(asset.getSize().doubleValue());
         assetDTO.setUsableSize(asset.getUsableSize().doubleValue());
@@ -37,5 +37,14 @@ public class AssetConverter {
         assetResponse.setSize(BigDecimal.valueOf(assetDTO.getSize()));
         assetResponse.setUsableSize(BigDecimal.valueOf(assetDTO.getUsableSize()));
         return assetResponse;
+    }
+    public AssetDto convertToDTO(AssetResponse assetResponse) {
+        AssetDto assetDTO = new AssetDto();
+        assetDTO.setId(assetResponse.getId());
+        assetDTO.setCustomerId(assetResponse.getCustomerId());
+        assetDTO.setAssetName(assetResponse.getAssetName());
+        assetDTO.setSize(assetResponse.getSize().doubleValue());
+        assetDTO.setUsableSize(assetResponse.getUsableSize().doubleValue());
+        return assetDTO;
     }
 }

@@ -35,4 +35,7 @@ public class Transaction {
     @Column(nullable = true)
     private String iban; // Çekim işlemlerinde IBAN.
 
+    @Column(nullable = false)
+    private String assetName;
+
 }
