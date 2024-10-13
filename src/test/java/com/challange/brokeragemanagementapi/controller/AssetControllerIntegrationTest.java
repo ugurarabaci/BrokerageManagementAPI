@@ -26,7 +26,7 @@ public class AssetControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "testuser")
-    public void listAssets_ShouldReturnAssets() throws Exception {
+    public void should_return_assets() throws Exception {
         mockMvc.perform(get("/api/assets/customer/{customerId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -36,7 +36,7 @@ public class AssetControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "testuser", roles = {"ADMIN"})
-    public void depositMoney_ValidInput_ShouldReturnAsset() throws Exception {
+    public void should_depoist_money() throws Exception {
         DepositRequest depositRequest = new DepositRequest();
         depositRequest.setAmount(BigDecimal.valueOf(100.0));
 
@@ -51,7 +51,7 @@ public class AssetControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "testuser", roles = {"ADMIN"})
-    public void withdrawMoney_ValidInput_ShouldReturnAsset() throws Exception {
+    public void should_withdraw_money() throws Exception {
         WithdrawRequest withdrawRequest = new WithdrawRequest();
         withdrawRequest.setAmount(BigDecimal.valueOf(50.0));
         withdrawRequest.setIban("TR12345678901111111");
