@@ -1,8 +1,9 @@
 package com.challange.brokeragemanagementapi.model.enumtype;
 
-public enum ResponseStatusType implements ValueEnum<String>{
+public enum ResponseStatusType implements ValueEnum<String> {
     SUCCESS("SUCCESS"),
-    FAILURE("FAILURE");
+    FAILURE("FAILURE"),
+    NO_MATCH("NO_MATCH");
 
     private final String value;
 

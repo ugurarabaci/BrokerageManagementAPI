@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -34,6 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests() // authorizeRequests yerine authorizeHttpRequests kullanıyoruz
                 // H2 konsoluna erişimi izin veriyoruz
                 .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/orders/**").authenticated() // USER rolü olan kullanıcılar da erişebilir
                 .requestMatchers("/api/assets/**").authenticated().and()
                 .httpBasic(); // Basit HTTP temel yetkilendirmesi
@@ -66,6 +68,12 @@ public class SecurityConfig {
                 .build();
 
         return new InMemoryUserDetailsManager(admin, user1, user2);
+    }
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(
+                "/swagger-ui/", "/v3/api-docs/","/swagger-ui.html"
+        );
     }
 
 

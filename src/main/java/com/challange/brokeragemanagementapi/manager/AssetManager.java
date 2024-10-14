@@ -1,7 +1,10 @@
 package com.challange.brokeragemanagementapi.manager;
 
 import com.challange.brokeragemanagementapi.dto.AssetDto;
+import com.challange.brokeragemanagementapi.exception.AssetNotFoundException;
 import com.challange.brokeragemanagementapi.exception.CustomerNotFoundException;
+import com.challange.brokeragemanagementapi.exception.InsufficientFundsException;
+import com.challange.brokeragemanagementapi.exception.InvalidIbanException;
 import com.challange.brokeragemanagementapi.mapper.AssetConverter;
 import com.challange.brokeragemanagementapi.model.enumtype.ResponseStatusType;
 import com.challange.brokeragemanagementapi.model.request.DepositRequest;
@@ -49,15 +52,39 @@ public class AssetManager {
     }
 
     public AssetResponse depositMoney(Long customerId, DepositRequest depositRequest) {
+        AssetResponse response;
         AssetDto updatedAsset = assetConverter.convertToDTO(assetService.depositMoney(customerId, depositRequest.getAmount()), customerId);
         transactionService.recordDeposit(customerId, depositRequest.getAmount(), "TRY");
-        return assetConverter.convertToResponse(updatedAsset);
+        response = assetConverter.convertToResponse(updatedAsset);
+        response.setStatus("SUCCESS");
+        return response;
     }
 
     public AssetResponse withdrawMoney(Long customerId, WithdrawRequest withdrawRequest) {
-        AssetDto updatedAsset = assetConverter.convertToDTO(assetService.withdrawMoney(customerId, withdrawRequest.getAmount(), withdrawRequest.getIban()), customerId);
-        transactionService.recordWithdrawal(customerId, withdrawRequest.getAmount(), "TRY", withdrawRequest.getIban());
-        return assetConverter.convertToResponse(updatedAsset);
+        AssetResponse response = new AssetResponse();
+
+        try {
+            if (withdrawRequest.getIban() == null || withdrawRequest.getIban().length() < 15) {
+                throw new InvalidIbanException("IBAN must be at least 15 characters long");
+            }
+            AssetDto updatedAsset = assetConverter.convertToDTO(
+                    assetService.withdrawMoney(customerId, withdrawRequest.getAmount(), withdrawRequest.getIban()),
+                    customerId
+            );
+            transactionService.recordWithdrawal(customerId, withdrawRequest.getAmount(), "TRY", withdrawRequest.getIban());
+
+            response = assetConverter.convertToResponse(updatedAsset);
+            response.setStatus("SUCCESS");
+        } catch (InvalidIbanException | AssetNotFoundException | InsufficientFundsException |
+                 CustomerNotFoundException e) {
+            response.setStatus("FAILED");
+            response.setErrorMessage(e.getMessage());
+        } catch (Exception e) {
+            response.setStatus("ERROR");
+            response.setErrorMessage("An unexpected error occurred: " + e.getMessage());
+        }
+
+        return response;
     }
 
 }

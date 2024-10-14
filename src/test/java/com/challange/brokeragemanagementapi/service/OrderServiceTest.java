@@ -1,14 +1,15 @@
 package com.challange.brokeragemanagementapi.service;
 
 import com.challange.brokeragemanagementapi.dto.OrderDto;
-import com.challange.brokeragemanagementapi.exception.CustomerNotFoundException;
-import com.challange.brokeragemanagementapi.exception.InvalidOrderStatusException;
-import com.challange.brokeragemanagementapi.exception.OrderNotFoundException;
+import com.challange.brokeragemanagementapi.exception.*;
 import com.challange.brokeragemanagementapi.mapper.AssetConverter;
 import com.challange.brokeragemanagementapi.mapper.OrderConverter;
+import com.challange.brokeragemanagementapi.model.Asset;
 import com.challange.brokeragemanagementapi.model.Customer;
 import com.challange.brokeragemanagementapi.model.Order;
+import com.challange.brokeragemanagementapi.model.enumtype.OrderSide;
 import com.challange.brokeragemanagementapi.model.enumtype.OrderStatus;
+import com.challange.brokeragemanagementapi.repository.AssetRepository;
 import com.challange.brokeragemanagementapi.repository.CustomerRepository;
 import com.challange.brokeragemanagementapi.repository.OrderRepository;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +43,9 @@ class OrderServiceTest {
     private OrderConverter orderConverter;
     @Mock
     private AssetConverter assetConverter;
+
+    @Mock
+    private AssetRepository assetRepository;
 
     @InjectMocks
     private OrderService orderService;
@@ -206,6 +212,171 @@ class OrderServiceTest {
                 eq(filterDto.getStatus())
         );
         verify(orderConverter, times(2)).convertToDTO(any(Order.class));
+    }
+
+    @Test
+    void should_match_pending_orders() {
+        // Arrange
+        Customer buyer = new Customer();
+        buyer.setId(1L);
+        Customer seller = new Customer();
+        seller.setId(2L);
+
+        Order buyOrder = new Order();
+        buyOrder.setId(1L);
+        buyOrder.setCustomer(buyer);
+        buyOrder.setAssetName("BTC");
+        buyOrder.setOrderSide(OrderSide.BUY);
+        buyOrder.setSize(new BigDecimal("1.0"));
+        buyOrder.setPrice(new BigDecimal("50000"));
+        buyOrder.setStatus(OrderStatus.PENDING);
+
+        Order sellOrder = new Order();
+        sellOrder.setId(2L);
+        sellOrder.setCustomer(seller);
+        sellOrder.setAssetName("BTC");
+        sellOrder.setOrderSide(OrderSide.SELL);
+        sellOrder.setSize(new BigDecimal("1.0"));
+        sellOrder.setPrice(new BigDecimal("49000"));
+        sellOrder.setStatus(OrderStatus.PENDING);
+
+        when(orderRepository.findByOrderSideAndStatus(OrderSide.BUY, OrderStatus.PENDING))
+                .thenReturn(Arrays.asList(buyOrder));
+        when(orderRepository.findByOrderSideAndStatus(OrderSide.SELL, OrderStatus.PENDING))
+                .thenReturn(Arrays.asList(sellOrder));
+
+        Asset buyerBTC = new Asset();
+        buyerBTC.setCustomer(buyer);
+        buyerBTC.setAssetName("BTC");
+        buyerBTC.setSize(BigDecimal.ZERO);
+        buyerBTC.setUsableSize(BigDecimal.ZERO);
+
+        Asset sellerBTC = new Asset();
+        sellerBTC.setCustomer(seller);
+        sellerBTC.setAssetName("BTC");
+        sellerBTC.setSize(new BigDecimal("1.0"));
+        sellerBTC.setUsableSize(new BigDecimal("1.0"));
+
+        Asset buyerTRY = new Asset();
+        buyerTRY.setCustomer(buyer);
+        buyerTRY.setAssetName("TRY");
+        buyerTRY.setSize(new BigDecimal("100000"));
+        buyerTRY.setUsableSize(new BigDecimal("100000"));
+
+        Asset sellerTRY = new Asset();
+        sellerTRY.setCustomer(seller);
+        sellerTRY.setAssetName("TRY");
+        sellerTRY.setSize(new BigDecimal("10000"));
+        sellerTRY.setUsableSize(new BigDecimal("10000"));
+
+        when(assetRepository.findByCustomerIdAndAssetName(buyer.getId(), "BTC")).thenReturn(Optional.of(buyerBTC));
+        when(assetRepository.findByCustomerIdAndAssetName(seller.getId(), "BTC")).thenReturn(Optional.of(sellerBTC));
+        when(assetRepository.findByCustomerIdAndAssetName(buyer.getId(), "TRY")).thenReturn(Optional.of(buyerTRY));
+        when(assetRepository.findByCustomerIdAndAssetName(seller.getId(), "TRY")).thenReturn(Optional.of(sellerTRY));
+
+        OrderDto buyOrderDto = new OrderDto();
+        OrderDto sellOrderDto = new OrderDto();
+        when(orderConverter.convertToDTO(buyOrder)).thenReturn(buyOrderDto);
+        when(orderConverter.convertToDTO(sellOrder)).thenReturn(sellOrderDto);
+
+        // Act
+        List<OrderDto> result = orderService.matchPendingOrders();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(orderRepository, times(2)).save(any(Order.class));
+        verify(assetRepository, times(4)).save(any(Asset.class));
+        assertEquals(OrderStatus.MATCHED, buyOrder.getStatus());
+        assertEquals(OrderStatus.MATCHED, sellOrder.getStatus());
+    }
+
+    @Test
+    void should_match_pending_orders_no_match() {
+        // Arrange
+        when(orderRepository.findByOrderSideAndStatus(any(), any())).thenReturn(Collections.emptyList());
+
+        // Act
+        List<OrderDto> result = orderService.matchPendingOrders();
+
+        // Assert
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void should_match_pending_orders_partial_match() {
+        // Arrange
+        Customer buyer = new Customer();
+        buyer.setId(1L);
+        Customer seller = new Customer();
+        seller.setId(2L);
+
+        Order buyOrder = new Order();
+        buyOrder.setId(1L);
+        buyOrder.setCustomer(buyer);
+        buyOrder.setAssetName("BTC");
+        buyOrder.setOrderSide(OrderSide.BUY);
+        buyOrder.setSize(new BigDecimal("2.0"));
+        buyOrder.setPrice(new BigDecimal("50000"));
+        buyOrder.setStatus(OrderStatus.PENDING);
+
+        Order sellOrder = new Order();
+        sellOrder.setId(2L);
+        sellOrder.setCustomer(seller);
+        sellOrder.setAssetName("BTC");
+        sellOrder.setOrderSide(OrderSide.SELL);
+        sellOrder.setSize(new BigDecimal("1.0"));
+        sellOrder.setPrice(new BigDecimal("49000"));
+        sellOrder.setStatus(OrderStatus.PENDING);
+
+        when(orderRepository.findByOrderSideAndStatus(OrderSide.BUY, OrderStatus.PENDING))
+                .thenReturn(Arrays.asList(buyOrder));
+        when(orderRepository.findByOrderSideAndStatus(OrderSide.SELL, OrderStatus.PENDING))
+                .thenReturn(Arrays.asList(sellOrder));
+
+        Asset buyerBTC = new Asset();
+        buyerBTC.setCustomer(buyer);
+        buyerBTC.setAssetName("BTC");
+        buyerBTC.setSize(BigDecimal.ZERO);
+        buyerBTC.setUsableSize(BigDecimal.ZERO);
+
+        Asset sellerBTC = new Asset();
+        sellerBTC.setCustomer(seller);
+        sellerBTC.setAssetName("BTC");
+        sellerBTC.setSize(new BigDecimal("1.0"));
+        sellerBTC.setUsableSize(new BigDecimal("1.0"));
+
+        Asset buyerTRY = new Asset();
+        buyerTRY.setCustomer(buyer);
+        buyerTRY.setAssetName("TRY");
+        buyerTRY.setSize(new BigDecimal("100000"));
+        buyerTRY.setUsableSize(new BigDecimal("100000"));
+
+        Asset sellerTRY = new Asset();
+        sellerTRY.setCustomer(seller);
+        sellerTRY.setAssetName("TRY");
+        sellerTRY.setSize(new BigDecimal("10000"));
+        sellerTRY.setUsableSize(new BigDecimal("10000"));
+
+        when(assetRepository.findByCustomerIdAndAssetName(buyer.getId(), "BTC")).thenReturn(Optional.of(buyerBTC));
+        when(assetRepository.findByCustomerIdAndAssetName(seller.getId(), "BTC")).thenReturn(Optional.of(sellerBTC));
+        when(assetRepository.findByCustomerIdAndAssetName(buyer.getId(), "TRY")).thenReturn(Optional.of(buyerTRY));
+        when(assetRepository.findByCustomerIdAndAssetName(seller.getId(), "TRY")).thenReturn(Optional.of(sellerTRY));
+
+        OrderDto buyOrderDto = new OrderDto();
+        OrderDto sellOrderDto = new OrderDto();
+        when(orderConverter.convertToDTO(any(Order.class))).thenReturn(buyOrderDto, sellOrderDto);
+
+        // Act
+        List<OrderDto> result = orderService.matchPendingOrders();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(orderRepository, times(2)).save(any(Order.class));
+        verify(assetRepository, times(4)).save(any(Asset.class));
+        assertEquals(OrderStatus.MATCHED, sellOrder.getStatus());
+        assertEquals(new BigDecimal("1.0"), buyOrder.getSize());
     }
 
 }

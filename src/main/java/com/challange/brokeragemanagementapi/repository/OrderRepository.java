@@ -1,6 +1,7 @@
 package com.challange.brokeragemanagementapi.repository;
 
 import com.challange.brokeragemanagementapi.model.Order;
+import com.challange.brokeragemanagementapi.model.enumtype.OrderSide;
 import com.challange.brokeragemanagementapi.model.enumtype.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,8 +17,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByCustomerIdAndCreateDateBetween(Long customerId, LocalDateTime startDate, LocalDateTime endDate);
 
-    List<Order> findByStatus(OrderStatus status);
-
+    List<Order> findByOrderSideAndStatus(OrderSide side, OrderStatus status);
     @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId " +
             "AND o.createDate BETWEEN :startDate AND :endDate " +
             "AND (:assetName IS NULL OR o.assetName = :assetName) " +
