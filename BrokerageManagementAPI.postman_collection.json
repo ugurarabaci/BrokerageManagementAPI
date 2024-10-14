@@ -1,0 +1,519 @@
+{
+	"info": {
+		"_postman_id": "8b8fcaea-315e-4a5b-891e-a9bc9a432943",
+		"name": "BrokerageManagementAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14753784"
+	},
+	"item": [
+		{
+			"name": "orders",
+			"item": [
+				{
+					"name": "CreateOrder",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "adminPassword",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "username",
+								"value": "admin",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "password",
+								"value": "adminPassword",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": 2,\n    \"assetName\": \"AAPL\",\n    \"orderSide\": \"BUY\",\n    \"size\": 5,\n    \"price\": 155.00\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListFilteredOrders(admin credential)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "adminPassword",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "username",
+								"value": "admin",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "adminPassword",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/orders?customerId=2&startDate=2023-01-01&endDate=2024-12-31&assetName=GOOGL&status=PENDING",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "2"
+								},
+								{
+									"key": "startDate",
+									"value": "2023-01-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-12-31"
+								},
+								{
+									"key": "assetName",
+									"value": "GOOGL"
+								},
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListFilteredOrders(user credential)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "password456",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "janesmith",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "username",
+								"value": "janesmith1",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "password",
+								"value": "password45678",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/orders?customerId=2&startDate=2023-01-01&endDate=2024-12-31&assetName=GOOGL&status=PENDING",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "2"
+								},
+								{
+									"key": "startDate",
+									"value": "2023-01-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-12-31"
+								},
+								{
+									"key": "assetName",
+									"value": "GOOGL"
+								},
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListFilteredOrders(user credential) Copy",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "password456",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "janesmith",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "username",
+								"value": "janesmith1",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "password",
+								"value": "password45678",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/orders?customerId=2&assetName=GOOGL&status=PENDING",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "2"
+								},
+								{
+									"key": "assetName",
+									"value": "GOOGL"
+								},
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteOrder(user credential)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "password456",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "janesmith",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/orders/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteOrder(admin credential)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "adminPassword",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/orders/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "assets",
+			"item": [
+				{
+					"name": "ListAssets",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "password456",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "janesmith",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/assets/customer/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"assets",
+								"customer",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DepositMoney",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "adminPassword",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "   {\n       \"amount\": 1000.00\n   }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/assets/deposit/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"assets",
+								"deposit",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "WithdrawMoney",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "adminPassword",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n       \"amount\": 1500.00,\n       \"iban\": \"TR330006100519786457841326\"\n   }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/assets/withdraw/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"assets",
+								"withdraw",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "bonus",
+			"item": [
+				{
+					"name": "match",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "adminPassword",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/orders/match",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders",
+								"match"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

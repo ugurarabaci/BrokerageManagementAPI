@@ -1,51 +1,82 @@
-Java Backend Developer Case (Brokage Firm Challenge)
+# Brokerage Management API
 
-You are expected to write backend api for a brokage firm so that their employees can send,
-list and delete stock orders for their customers. All orders have a status either PENDING,
-MATCHED or CANCELED.
-Employees also need endpoints for deposit and withdraw money for their customers.
-Your backend service should have those endpoints:
-- Create Order: Create a new order for a given customer, asset, side, size and price
-  Side can be BUY or SELL. Customer is a unique id for a customer. Asset is the name
-  of the stock customer wants to buy. Size represents how many shares customer
-  wants to buy. Price represents how much customer wants to pay for per share.
-- List Orders: List orders for a given customer and date range. (you can add more filter
-  if you want)
-- Delete Order: Cancel a pending order. Other status orders cannot be deleted
-- Deposit Money: Deposit TRY for a given customer and amount
-- Withdraw Money: Withdraw TRY for a given customer amount and IBAN
-- List Assets: List all assets for a given customer (you can add filters if you want)
+## Overview
 
-Requirements:
-- All endpoints should be authorized with an admin user and password
-- All info should be stored in database as below:
-  Asset: customerId, assetName, size, usableSize
-  Order: customerId, assetName, orderSide, size, price, status, createDate
-  Side: BUY, SELL
-  Status: PENDING, MATCHED, CANCELED
-  Don’t open another table for TRY. TRY should be stored in asset table as it is an asset
-  too.
-  Note: Orders will be against TRY asset. That means you can buy and sell with only
-  TRY.
+The Brokerage Management API is a robust, scalable solution for managing financial transactions in a brokerage environment. This Spring Boot-based application provides a secure and efficient platform for handling orders, assets, and user accounts in the financial market.
 
-- While creating new order customer TRY asset’s usable size or usable size of asset
-  that wanted to be sold should be checked to see if there is enough amount and then
-  it should be updated accordingly.
-- While cancelling and order, TRY asset’ usable size or asset that wanted to be sold in
-  order’s usable size should be updated accordingly.
-- You can save deposits and withdraws in a table if you want. It is up to you.
-- You should write unit tests
+## Key Features
 
-Implementation:
-We would like u to build a java application using Spring Boot Framework. You can
-use h2 db as database. Try to build and design your code as it will be deployed to
-prod (or at least test env ☺ ) Make sure to add information how to build and run the
-project. For business domain you can search on internet to learn more about how
-ordering in a stock market works.
-Bonus 1: Add a customer table and authorize endpoints per customer(with a login
-endpoint). That means each customer can only access and manipulate their own
-data. Admin user can still manipulate all customer’s data.
-Bonus 2: Add an admin user endpoint that can match pending orders. (While
-matching, both TRY asset’s and bought assets’ size and usable size values should
-be updated accordingly) Orders will NOT be matched against each other. You just
-need to match orders and update assets accordingly.
+- **Authentication**: Secure user authentication and authorization system.
+- **Order Management**: Create, update, and match buy/sell orders.
+- **Asset Tracking**: Real-time tracking of user assets and balances.
+- **Rate Limiting**: Protect the API from abuse with built-in rate limiting.
+- **Comprehensive Testing**: Extensive unit and integration tests ensuring reliability.
+
+## Technology Stack
+
+- Java 17
+- Spring Boot 2.7.x
+- Spring Security
+- Spring Data JPA
+- H2 Database
+- JUnit 5 & Mockito
+- Maven
+
+## Getting Started
+
+### Prerequisites
+
+- JDK 17
+- Maven 3.6+
+
+### Installation
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/ugurarabaci/BrokerageManagementAPI.git
+   
+   ```
+
+2. Navigate to the project directory:
+   ```
+   cd brokerage-management-api
+   ```
+
+3. Configure the database connection in `src/main/resources/application.properties`.
+
+4. Build the project:
+   ```
+   mvn clean install
+   ```
+
+5. Run the application:
+   ```
+   mvn spring-boot:run
+   ```
+
+The API will be available at `http://localhost:8080`.
+
+## API Documentation
+
+Detailed API documentation is available via Swagger UI at `http://localhost:8080/swagger-ui.html` when the application is running.
+
+### Key Endpoints
+
+- `/api/orders`: Manage orders (create, update, delete)
+- `/api/orders/match`: Match pending orders
+- `/api/assets`: View and manage user assets
+
+## Security
+
+The API uses in memory Authorization and Authentication. The default credentials are:
+You can check credentials at SecurityConfig.java
+
+## Rate Limiting
+
+The API implements rate limiting to prevent abuse. The current limit is set to 5 requests per minute for the order matching endpoint.
+
+## Support
+
+For support, please open an issue in the GitHub issue tracker or contact me ugurarabaci0209@gmail.com.
+
+Note: login to http://localhost:8088/h2-console with username: sa, password: password infos (which already defined in application properties)
