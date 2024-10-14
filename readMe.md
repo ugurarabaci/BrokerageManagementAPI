@@ -4,6 +4,15 @@
 
 The Brokerage Management API is a robust, scalable solution for managing financial transactions in a brokerage environment. This Spring Boot-based application provides a secure and efficient platform for handling orders, assets, and user accounts in the financial market.
 
+# Postman Collection
+
+To help you quickly test and explore our API, we've provided a Postman collection that includes pre-configured requests for all our endpoints.
+
+### Accessing the Postman Collection
+
+You can find our Postman collection [here](https://github.com/ugurarabaci/BrokerageManagementAPI/blob/master/BrokerageManagementAPI.postman_collection.json).
+
+
 ## Key Features
 
 - **Authentication**: Secure user authentication and authorization system.
