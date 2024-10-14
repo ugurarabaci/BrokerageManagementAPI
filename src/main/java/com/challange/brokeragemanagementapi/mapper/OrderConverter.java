@@ -40,6 +40,7 @@ public class OrderConverter {
         Order order = new Order();
         order.setId(dto.getId());
         order.setAssetName(dto.getAssetName());
+        order.setCustomer(customer);
         order.setOrderSide(dto.getOrderSide());
         order.setSize(dto.getSize());
         order.setPrice(dto.getPrice());

@@ -17,16 +17,6 @@ public class AssetConverter {
         return assetDTO;
     }
 
-    public static Asset convertToEntity(AssetDto assetDTO) {
-        Asset asset = new Asset();
-        asset.setId(assetDTO.getId());
-        //asset.setCustomer(assetDTO.getCustomerId());
-        asset.setAssetName(assetDTO.getAssetName());
-        asset.setSize((assetDTO.getSize()));
-        asset.setUsableSize((assetDTO.getUsableSize()));
-        return asset;
-    }
-
     public AssetResponse convertToResponse(AssetDto assetDTO) {
         AssetResponse assetResponse = new AssetResponse();
         assetResponse.setId(assetDTO.getId());
@@ -35,14 +25,5 @@ public class AssetConverter {
         assetResponse.setSize((assetDTO.getSize()));
         assetResponse.setUsableSize((assetDTO.getUsableSize()));
         return assetResponse;
-    }
-    public AssetDto convertToDTO(AssetResponse assetResponse) {
-        AssetDto assetDTO = new AssetDto();
-        assetDTO.setId(assetResponse.getId());
-        assetDTO.setCustomerId(assetResponse.getCustomerId());
-        assetDTO.setAssetName(assetResponse.getAssetName());
-        assetDTO.setSize(assetResponse.getSize());
-        assetDTO.setUsableSize(assetResponse.getUsableSize());
-        return assetDTO;
     }
 }
