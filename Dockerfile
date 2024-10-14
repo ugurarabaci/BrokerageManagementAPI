@@ -1,14 +1,14 @@
-# Adoptium'dan Java 17 JDK imajını kullanıyoruz
+# Using Java 17 JDK from Adoptium
 FROM eclipse-temurin:17-jdk
 
-# ARG ile JAR dosyasını belirliyoruz
+# Specify the JAR file using ARG
 ARG JAR_FILE=target/*.jar
 
-# JAR dosyasını container'ın içine kopyalıyoruz
+# Copy the JAR file into the container
 COPY ${JAR_FILE} BrokerageManagementAPI-0.0.1-SNAPSHOT.jar
 
-# Çalıştırılacak portu belirtiyoruz
+# Specify the port that the application will run on
 EXPOSE 8080
 
-# Uygulamayı çalıştıracak komutu yazıyoruz
+# Write the command to run the application
 ENTRYPOINT ["java", "-jar", "/BrokerageManagementAPI-0.0.1-SNAPSHOT.jar"]

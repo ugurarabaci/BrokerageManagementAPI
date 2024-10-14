@@ -88,4 +88,10 @@ The API implements rate limiting to prevent abuse. The current limit is set to 5
 
 For support, please open an issue in the GitHub issue tracker or contact me ugurarabaci0209@gmail.com.
 
+## Dockerization
+
+Our application can be dockerized using the following Dockerfile:
+
+[here](https://github.com/ugurarabaci/BrokerageManagementAPI/blob/master/Dockerfile)
+
 Note: login to http://localhost:8088/h2-console with username: sa, password: password infos (which already defined in application properties)
