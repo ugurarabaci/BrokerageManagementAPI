@@ -1,4 +1,4 @@
-package com.challange.brokeragemanagementapi.config;
+package com.challange.brokeragemanagementapi.security;
 
 import com.challange.brokeragemanagementapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;

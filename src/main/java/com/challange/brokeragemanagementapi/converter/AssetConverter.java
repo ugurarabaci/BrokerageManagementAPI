@@ -1,4 +1,4 @@
-package com.challange.brokeragemanagementapi.mapper;
+package com.challange.brokeragemanagementapi.converter;
 
 import com.challange.brokeragemanagementapi.dto.AssetDto;
 import com.challange.brokeragemanagementapi.model.Asset;

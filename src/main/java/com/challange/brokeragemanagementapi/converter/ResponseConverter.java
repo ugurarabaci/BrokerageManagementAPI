@@ -1,4 +1,4 @@
-package com.challange.brokeragemanagementapi.mapper;
+package com.challange.brokeragemanagementapi.converter;
 
 import com.challange.brokeragemanagementapi.model.enumtype.ResponseStatusType;
 import com.challange.brokeragemanagementapi.model.response.Response;
@@ -18,10 +18,10 @@ public class ResponseConverter {
         return response;
     }
 
-    public Response prepareFailureResponse(String errorMessage) {
+    public Response prepareFailureResponse(String message) {
         Response response = new Response();
         response.setStatus(ResponseStatusType.FAILURE.getValue());
-        response.setErrorMessage(errorMessage);
+        response.setMessage(message);
         return response;
     }
 

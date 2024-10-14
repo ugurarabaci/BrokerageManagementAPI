@@ -1,4 +1,4 @@
-package com.challange.brokeragemanagementapi.mapper;
+package com.challange.brokeragemanagementapi.converter;
 
 import com.challange.brokeragemanagementapi.dto.OrderDto;
 import com.challange.brokeragemanagementapi.model.Customer;
@@ -46,8 +46,6 @@ public class OrderConverter {
         order.setPrice(dto.getPrice());
         order.setStatus(dto.getStatus());
         order.setCreateDate(dto.getCreateDate());
-
-        // Customer nesnesini ayrıca set etmek gerekecek
 
         return order;
     }

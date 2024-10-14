@@ -2,8 +2,8 @@ package com.challange.brokeragemanagementapi.service;
 
 import com.challange.brokeragemanagementapi.dto.OrderDto;
 import com.challange.brokeragemanagementapi.exception.*;
-import com.challange.brokeragemanagementapi.mapper.AssetConverter;
-import com.challange.brokeragemanagementapi.mapper.OrderConverter;
+import com.challange.brokeragemanagementapi.converter.AssetConverter;
+import com.challange.brokeragemanagementapi.converter.OrderConverter;
 import com.challange.brokeragemanagementapi.model.Asset;
 import com.challange.brokeragemanagementapi.model.Customer;
 import com.challange.brokeragemanagementapi.model.Order;

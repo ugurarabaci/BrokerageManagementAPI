@@ -5,7 +5,7 @@ import com.challange.brokeragemanagementapi.exception.AssetNotFoundException;
 import com.challange.brokeragemanagementapi.exception.CustomerNotFoundException;
 import com.challange.brokeragemanagementapi.exception.InsufficientFundsException;
 import com.challange.brokeragemanagementapi.exception.InvalidIbanException;
-import com.challange.brokeragemanagementapi.mapper.AssetConverter;
+import com.challange.brokeragemanagementapi.converter.AssetConverter;
 import com.challange.brokeragemanagementapi.model.enumtype.ResponseStatusType;
 import com.challange.brokeragemanagementapi.model.request.DepositRequest;
 import com.challange.brokeragemanagementapi.model.request.WithdrawRequest;
@@ -32,21 +32,19 @@ public class AssetManager {
     }
 
     public AssetListResponse listAssetsByCustomerId(Long customerId) {
+        AssetListResponse response = new AssetListResponse();
         try {
             List<AssetDto> assets = assetService.listAssets(customerId);
-            AssetListResponse assetResponses = new AssetListResponse();
-            assetResponses.setStatus(ResponseStatusType.SUCCESS.getValue());
-            assetResponses.setAssetDtoList(assets);
-            return assetResponses;
+            response.setStatus(ResponseStatusType.SUCCESS.getValue());
+            response.setAssetDtoList(assets);
+            return response;
         } catch (CustomerNotFoundException e) {
-            AssetListResponse response = new AssetListResponse();
             response.setStatus(ResponseStatusType.FAILURE.getValue());
-            response.setErrorMessage("Failed to list assets: " + e.getMessage());
+            response.setMessage("Failed to list assets: " + e.getMessage());
             return response;
         } catch (Exception e) {
-            AssetListResponse response = new AssetListResponse();
             response.setStatus(ResponseStatusType.FAILURE.getValue());
-            response.setErrorMessage("An unexpected error occurred while listing assets");
+            response.setMessage("An unexpected error occurred while listing assets");
             return response;
         }
     }
@@ -57,6 +55,7 @@ public class AssetManager {
         transactionService.recordDeposit(customerId, depositRequest.getAmount(), "TRY");
         response = assetConverter.convertToResponse(updatedAsset);
         response.setStatus("SUCCESS");
+        response.setMessage("Deposit successful for customer: " + customerId);
         return response;
     }
 
@@ -74,14 +73,15 @@ public class AssetManager {
             transactionService.recordWithdrawal(customerId, withdrawRequest.getAmount(), "TRY", withdrawRequest.getIban());
 
             response = assetConverter.convertToResponse(updatedAsset);
-            response.setStatus("SUCCESS");
+            response.setStatus(ResponseStatusType.SUCCESS.getValue());
+            response.setMessage("Withdrawal successful for customer: " + customerId);
         } catch (InvalidIbanException | AssetNotFoundException | InsufficientFundsException |
                  CustomerNotFoundException e) {
-            response.setStatus("FAILED");
-            response.setErrorMessage(e.getMessage());
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setMessage(e.getMessage());
         } catch (Exception e) {
-            response.setStatus("ERROR");
-            response.setErrorMessage("An unexpected error occurred: " + e.getMessage());
+            response.setStatus(ResponseStatusType.FAILURE.getValue());
+            response.setMessage("An unexpected error occurred: " + e.getMessage());
         }
 
         return response;

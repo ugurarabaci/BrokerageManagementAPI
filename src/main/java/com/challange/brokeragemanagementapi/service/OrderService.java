@@ -5,7 +5,7 @@ import com.challange.brokeragemanagementapi.exception.AssetNotFoundException;
 import com.challange.brokeragemanagementapi.exception.CustomerNotFoundException;
 import com.challange.brokeragemanagementapi.exception.InvalidOrderStatusException;
 import com.challange.brokeragemanagementapi.exception.OrderNotFoundException;
-import com.challange.brokeragemanagementapi.mapper.OrderConverter;
+import com.challange.brokeragemanagementapi.converter.OrderConverter;
 import com.challange.brokeragemanagementapi.model.Asset;
 import com.challange.brokeragemanagementapi.model.Customer;
 import com.challange.brokeragemanagementapi.model.Order;

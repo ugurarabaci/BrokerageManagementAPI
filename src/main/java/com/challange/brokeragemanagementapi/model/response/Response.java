@@ -9,5 +9,5 @@ import lombok.Setter;
 @Setter
 public class Response {
     private String status;
-    private String errorMessage;
+    private String message;
 }
