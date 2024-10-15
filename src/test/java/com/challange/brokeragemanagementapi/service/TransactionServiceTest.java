@@ -36,7 +36,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void recordDeposit_ShouldCreateAndSaveDepositTransaction() {
+    void should_create_and_save_deposit_transaction() {
         Long customerId = 1L;
         BigDecimal amount = BigDecimal.valueOf(1000);
         String assetName = "TRY";
@@ -60,7 +60,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void recordWithdrawal_ShouldCreateAndSaveWithdrawalTransaction() {
+    void should_create_and_save_withdrawal_transaction() {
         Long customerId = 1L;
         BigDecimal amount = BigDecimal.valueOf(500);
         String assetName = "TRY";

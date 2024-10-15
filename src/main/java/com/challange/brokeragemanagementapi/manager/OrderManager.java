@@ -32,46 +32,28 @@ public class OrderManager {
     }
 
     public CreateOrderResponse createOrder(CreateOrderRequest request) {
-        try {
-            log.info("Creating order for customer: {}, asset: {}, side: {}, size: {}, price: {}",
-                    request.getCustomerId(), request.getAssetName(), request.getOrderSide(),
-                    request.getSize(), request.getPrice());
+        CreateOrderResponse response = new CreateOrderResponse();
 
+        log.info("Creating order for customer: {}, asset: {}, side: {}, size: {}, price: {}",
+                request.getCustomerId(), request.getAssetName(), request.getOrderSide(),
+                request.getSize(), request.getPrice());
+
+        try {
             OrderDto orderDto = orderConverter.convertCreateRequestToDTO(request);
             OrderDto createdOrderDTO = orderConverter.convertToDTO(orderService.createOrder(orderDto));
 
             log.info("Order created successfully. Order ID: {}", createdOrderDTO.getId());
 
-            CreateOrderResponse response = orderConverter.convertToCreateOrderResponse(createdOrderDTO);
+            orderConverter.convertToCreateOrderResponse(createdOrderDTO, response);
             response.setStatus(ResponseStatusType.SUCCESS.getValue());
             response.setMessage("Order created successfully");
-            return response;
 
-        } catch (CustomerNotFoundException e) {
-            log.error("Customer not found while creating order: {}", e.getMessage());
-            CreateOrderResponse response = new CreateOrderResponse();
-            response.setStatus(ResponseStatusType.FAILURE.getValue());
-            response.setMessage("Customer not found: " + e.getMessage());
-            return response;
-        } catch (AssetNotFoundException e) {
-            log.error("Asset not found while creating order: {}", e.getMessage());
-            CreateOrderResponse response = new CreateOrderResponse();
-            response.setStatus(ResponseStatusType.FAILURE.getValue());
-            response.setMessage("Asset not found: " + e.getMessage());
-            return response;
-        } catch (InsufficientFundsException e) {
-            log.error("Insufficient funds while creating order: {}", e.getMessage());
-            CreateOrderResponse response = new CreateOrderResponse();
-            response.setStatus(ResponseStatusType.FAILURE.getValue());
-            response.setMessage("Insufficient funds: " + e.getMessage());
-            return response;
+        } catch (CustomerNotFoundException | AssetNotFoundException | InsufficientFundsException e) {
+            handleKnownExceptions(response, e);
         } catch (Exception e) {
-            log.error("Unexpected error while creating order: {}", e.getMessage());
-            CreateOrderResponse response = new CreateOrderResponse();
-            response.setStatus(ResponseStatusType.FAILURE.getValue());
-            response.setMessage("An unexpected error occurred while creating order");
-            return response;
+            handleUnknownException(response, e);
         }
+        return response;
     }
 
     public OrderListResponse listOrders(Long customerId, LocalDate startDate, LocalDate endDate, String assetName, OrderStatus status) {
@@ -105,18 +87,11 @@ public class OrderManager {
 
             log.info("Order deleted successfully. Order ID: {}", orderId);
             response.setStatus(ResponseStatusType.SUCCESS.getValue());
-        } catch (OrderNotFoundException e) {
-            log.error("Order not found for deletion. Order ID: {}", orderId);
-            response.setStatus(ResponseStatusType.FAILURE.getValue());
-            response.setMessage(e.getMessage());
-        } catch (InvalidOrderStatusException e) {
-            log.error("Only PENDING orders can be deleted. Order ID: {}", orderId);
-            response.setStatus(ResponseStatusType.FAILURE.getValue());
-            response.setMessage(e.getMessage());
+
+        } catch (OrderNotFoundException | InvalidOrderStatusException e) {
+            handleKnownExceptions(response, e);
         } catch (Exception e) {
-            log.error("Failed to delete order with ID: {}. Error: {}", orderId, e.getMessage());
-            response.setStatus(ResponseStatusType.FAILURE.getValue());
-            response.setMessage("An unexpected error occurred while deleting the order");
+            handleUnknownException(response, e);
         }
 
         return response;
@@ -138,19 +113,25 @@ public class OrderManager {
                 orderListResponse.setStatus(ResponseStatusType.SUCCESS.getValue());
                 log.info("Pending orders matched successfully. Total matched orders: {}", orderDtoList.size());
             }
-        } catch (AssetNotFoundException e) {
-            log.error("Asset not found during order matching: {}", e.getMessage());
-            orderListResponse.setStatus(ResponseStatusType.FAILURE.getValue());
-            orderListResponse.setMessage("Asset not found: " + e.getMessage());
-        } catch (InsufficientFundsException e) {
-            log.error("Insufficient funds during order matching: {}", e.getMessage());
-            orderListResponse.setStatus(ResponseStatusType.FAILURE.getValue());
-            orderListResponse.setMessage("Insufficient funds: " + e.getMessage());
+
+        } catch (AssetNotFoundException | InsufficientFundsException e) {
+            handleKnownExceptions(orderListResponse, e);
         } catch (Exception e) {
-            log.error("Unexpected error during order matching: {}", e.getMessage(), e);
-            orderListResponse.setStatus(ResponseStatusType.FAILURE.getValue());
-            orderListResponse.setMessage("An unexpected error occurred: " + e.getMessage());
+            handleUnknownException(orderListResponse, e);
         }
+
         return orderListResponse;
+    }
+
+    private void handleKnownExceptions(Response response, Exception e) {
+        log.error(e.getMessage());
+        response.setStatus(ResponseStatusType.FAILURE.getValue());
+        response.setMessage(e.getMessage());
+    }
+
+    private void handleUnknownException(Response response, Exception e) {
+        log.error("An unexpected error occurred: {}", e.getMessage());
+        response.setStatus(ResponseStatusType.FAILURE.getValue());
+        response.setMessage("An unexpected error occurred while processing the request");
     }
 }

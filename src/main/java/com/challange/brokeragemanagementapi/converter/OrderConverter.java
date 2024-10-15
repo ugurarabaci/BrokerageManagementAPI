@@ -61,7 +61,7 @@ public class OrderConverter {
         dto.setOrderSide(request.getOrderSide());
         dto.setSize(request.getSize());
         dto.setPrice(request.getPrice());
-        dto.setStatus(OrderStatus.PENDING);  // Varsayılan durum
+        dto.setStatus(OrderStatus.PENDING);
         dto.setCreateDate(LocalDateTime.now());
 
         return dto;
@@ -72,7 +72,7 @@ public class OrderConverter {
         OrderDto dto = new OrderDto();
         dto.setCustomerId(customerId);
         dto.setAssetName(assetName);
-        dto.setStatus(OrderStatus.PENDING);  // Varsayılan durum
+        dto.setStatus(OrderStatus.PENDING);
         dto.setCreateDate(LocalDateTime.now());
         dto.setStartDate(startDate.atStartOfDay());
         dto.setEndDate(endDate.atStartOfDay());
@@ -80,12 +80,11 @@ public class OrderConverter {
         return dto;
     }
 
-    public CreateOrderResponse convertToCreateOrderResponse(OrderDto dto) {
+    public CreateOrderResponse convertToCreateOrderResponse(OrderDto dto, CreateOrderResponse response) {
         if (dto == null) {
             return null;
         }
 
-        CreateOrderResponse response = new CreateOrderResponse();
         response.setId(dto.getId());
         response.setCustomerId(dto.getCustomerId());
         response.setAssetName(dto.getAssetName());
