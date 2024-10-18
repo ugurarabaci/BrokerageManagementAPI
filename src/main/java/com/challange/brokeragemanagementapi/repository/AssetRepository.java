@@ -9,11 +9,7 @@ import java.util.Optional;
 public interface AssetRepository extends JpaRepository<Asset, Long> {
     Optional<Asset> findByCustomerIdAndAssetName(Long customerId, String assetName);
 
-    List<Asset> findAllByCustomerId(Long customerId);
-
     List<Asset> findByCustomerId(Long customerId);
-
-    Optional<Asset> findByAssetName(String assetName);
 
 
 

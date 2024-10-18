@@ -24,23 +24,23 @@ public class Order {
     private Customer customer;
 
     @Column(nullable = false)
-    private String assetName; // Alım veya satım yapılacak varlık.
+    private String assetName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderSide orderSide; // BUY veya SELL.
+    private OrderSide orderSide;
 
     @Column(nullable = false)
-    private BigDecimal size; // Kaç adet hisse alınıyor/satılıyor.
+    private BigDecimal size;
 
     @Column(nullable = false)
-    private BigDecimal price;// Hisse başına fiyat.
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status; // PENDING, MATCHED, CANCELED.
 
     @Column(nullable = false)
-    private LocalDateTime createDate; // Siparişin oluşturulma tarihi.
+    private LocalDateTime createDate;
 
 }

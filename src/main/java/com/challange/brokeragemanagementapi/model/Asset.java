@@ -21,13 +21,12 @@ public class Asset {
     private Customer customer;
 
     @Column(nullable = false)
-    private String assetName; // Hisse senedi adı veya TRY.
+    private String assetName;
 
     @Column(nullable = false)
-    private BigDecimal size; // Toplam büyüklük.
+    private BigDecimal size;
 
     @Column(nullable = false)
-    private BigDecimal usableSize; // Kullanılabilir büyüklük.
+    private BigDecimal usableSize;
 
-    // Getter, Setter, Constructor methods
 }

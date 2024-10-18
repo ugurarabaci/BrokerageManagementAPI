@@ -23,17 +23,17 @@ public class Transaction {
     private Customer customer;
 
     @Column(nullable = false)
-    private BigDecimal amount; // Yatırılan veya çekilen miktar.
+    private BigDecimal amount;
 
     @Column(nullable = false)
     private LocalDateTime transactionDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TransactionType transactionType; // DEPOSIT veya WITHDRAW.
+    private TransactionType transactionType; // DEPOSIT, WITHDRAW.
 
     @Column(nullable = true)
-    private String iban; // Çekim işlemlerinde IBAN.
+    private String iban;
 
     @Column(nullable = false)
     private String assetName;

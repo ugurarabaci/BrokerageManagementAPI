@@ -15,8 +15,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findById(Long id);
 
-    List<Order> findByCustomerIdAndCreateDateBetween(Long customerId, LocalDateTime startDate, LocalDateTime endDate);
-
     List<Order> findByOrderSideAndStatus(OrderSide side, OrderStatus status);
     @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId " +
             "AND o.createDate BETWEEN :startDate AND :endDate " +
